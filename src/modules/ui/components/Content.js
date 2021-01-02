@@ -6,8 +6,9 @@ import {
   Toolbar,
 } from '@material-ui/core'
 import React from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import Routes from './Routes'
-
+import * as actions from '../actions'
 
 const useStyles = makeStyles((theme) => ({
   content: {
@@ -17,20 +18,26 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Content() {
   const classes = useStyles()
+  const disPatch = useDispatch()
+  const flashMessage = useSelector((state) => state.ui.flashMessage)
+
+  const closeFlashMessage = () => disPatch(actions.clearFlashMessage())
   return (
     <main className={classes.content}>
       <Container maxWidth="lg">
         <Toolbar></Toolbar>
         <Routes></Routes>
-        <Snackbar
-          open
-          message="Hello"
-          action={
-            <Button color="inherit" size="small">
-              Close
-            </Button>
-          }
-        ></Snackbar>
+        {flashMessage && (
+          <Snackbar
+            open
+            message={flashMessage}
+            action={
+              <Button color="inherit" size="small" onClick={closeFlashMessage}>
+                Close
+              </Button>
+            }
+          ></Snackbar>
+        )}
       </Container>
     </main>
   )

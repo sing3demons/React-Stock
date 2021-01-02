@@ -1,19 +1,28 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import {
   createMuiTheme,
   CssBaseline,
   ThemeProvider,
   useMediaQuery,
 } from '@material-ui/core'
-
+import * as actions from '../actions'
 import Header from './Header'
 import Content from './Content'
 
 export default function Layout() {
+  const dispatch = useDispatch()
   const prefersDarkMode = useMediaQuery('prefers-color-scheme: dark')
+  const darkMode = useSelector((state) => state.ui.darkMode)
+
+  useEffect(() => {
+    const action = actions.setDarkMode(prefersDarkMode)
+    dispatch(action)
+  }, [prefersDarkMode, dispatch])
+
   const theme = createMuiTheme({
     palette: {
-      type: prefersDarkMode ? 'dark' : 'light',
+      type: darkMode ? 'dark' : 'light',
       primary: {
         main: '#1abc9c',
       },

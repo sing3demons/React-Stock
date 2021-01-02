@@ -1,10 +1,12 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
+import { useSelector, useDispatch } from 'react-redux'
 
 import Delivery from './Delivery'
 import Order from './Order'
+import * as actions from '../actions'
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -15,6 +17,15 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Cart() {
   const classes = useStyles()
+  const dispatch = useDispatch()
+  const productIds = useSelector((state) => state.cart.productIds)
+  useEffect(() => {
+    dispatch(actions.loadCart())
+  }, [dispatch])
+
+  if (productIds.length === 0) {
+    return <p className={classes.title}> No order found</p>
+  }
 
   return (
     <>

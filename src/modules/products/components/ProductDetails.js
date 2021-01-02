@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useHistory, useParams } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles'
 import { useTheme } from '@material-ui/core/styles'
 import useMediaQuery from '@material-ui/core/useMediaQuery'
 import { Grid, Paper, Typography, ButtonGroup, Button } from '@material-ui/core'
-import axios from 'axios'
-import { useHistory, useParams } from 'react-router-dom'
+import * as productActions from '../actions'
+import * as cartActions from 'modules/cart/actions'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -23,21 +25,37 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ProductDetails() {
   const { id } = useParams()
-  const [product, setProduct] = useState()
+  const dispatch = useDispatch()
+  const [product] = useSelector((state) => state.products.items)
+  const productIds = useSelector((state) => state.cart.productIds)
+  const exists = productIds.includes(id)
+  // const [product, setProduct] = useState()
   const classes = useStyles()
   const history = useHistory()
   const theme = useTheme()
   const isMediumUp = useMediaQuery(theme.breakpoints.up('md'))
 
-  useEffect(() => {
-    const loadProduct = async () => {
-      const { data } = await axios.get(`/products/${id}`)
-      setProduct(data)
-    }
-    loadProduct()
-  }, [])
+  // useEffect(() => {
+  //   const loadProduct = async () => {
+  //     const { data } = await axios.get(`/products/${id}`)
 
-  const buyNow = () => history.push('/cart')
+  //     setProduct(data)
+  //   }
+
+  //   loadProduct()
+  // }, [id])
+
+  useEffect(() => {
+    const action = productActions.loadProduct(id)
+    dispatch(action)
+  }, [dispatch, id])
+
+  const addToCart = () => dispatch(cartActions.addToCart(id))
+
+  const buyNow = () => {
+    addToCart()
+    history.push('/cart')
+  }
 
   if (!product) return null
 
@@ -64,16 +82,18 @@ export default function ProductDetails() {
               </Typography>
               <p>{product.desc}</p>
             </Grid>
-            <Grid item>
-              <ButtonGroup
-                variant="contained"
-                color="primary"
-                aria-label="primary button group"
-              >
-                <Button onClick={buyNow}>Buy Now</Button>
-                <Button>Add to Cart</Button>
-              </ButtonGroup>
-            </Grid>
+            {!exists && (
+              <Grid item>
+                <ButtonGroup
+                  variant="contained"
+                  color="primary"
+                  aria-label="primary button group"
+                >
+                  <Button onClick={buyNow}>Buy Now</Button>
+                  <Button onClick={addToCart}>Add to Cart</Button>
+                </ButtonGroup>
+              </Grid>
+            )}
           </Grid>
         </Grid>
       </Grid>
